@@ -9,7 +9,7 @@ from app.models.clinical_visit import ClinicalVisit, VisitStatus
 
 class Result_service():
     @staticmethod
-    def create_analysis(db:Session,data:AnalysisResultCreate,current_user):
+    def create_analysis(db:Session,data:AnalysisResultCreate):
         visit=db.query(ClinicalVisit).filter(ClinicalVisit.id==data.visit_id).first()
         if not visit:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="clinical visist not found")
