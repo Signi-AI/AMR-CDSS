@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.user import User,Role,UserRole
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate,UserUpdate
 from app.auth.security import Hash 
 from fastapi import HTTPException,status
 from sqlalchemy.exc import IntegrityError
@@ -38,10 +38,49 @@ class User_Serviices():
             )
             db.add(user_role)
             db.commit()
-
-
-
-
         return user
+    
+    @staticmethod
+    def all_user(db:Session):
+        users=db.query(User).all()
+        return users
+    
+    @staticmethod
+    def myinfo(db:Session,current_user):
+        user=db.query(User).filter(User.id==current_user.id).first()
+        return user
+    
+    @staticmethod
+    def show_byId(user_id:int,db:Session):
+        user=db.query(User).filter(User.id==user_id).first()
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"user with ID {user_id} not found")
+        return user
+    
+    @staticmethod
+    def update(user_id:int,db:Session,data:UserUpdate):
+        user=db.query(User).filter(User.id==user_id).first()
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"user with ID {user_id} not found")
+        if data.full_name:
+            user.full_name=data.full_name
+        if data.email:    
+            user.email=data.email
+        
+        db.commit()
+        db.refresh(user)
+        return user
+    
+    @staticmethod
+    def delete(user_id:int,db:Session):
+        user=db.query(User).filter(User.id==user_id).first()
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"user with ID {user_id} not found")
+        db.delete(user)
+        db.commit()
+        return {"message":"user deleted successfuly"}
+            
+    
+        
     
    
