@@ -6,7 +6,7 @@ from app.auth import jwtschema
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session
 from app.models import user as modeluser
-from core.config import settings
+from app.core.config import settings
 
 
 load_dotenv()
@@ -37,7 +37,7 @@ def verify_token(token: str,credentials_exception,db:Session):
         token_data = jwtschema.TokenData(email=user_id)
    except InvalidTokenError:
         raise credentials_exception
-   user = db.query(modeluser.User).filter(modeluser.Users.id == int(user_id)).first()
+   user = db.query(modeluser.User).filter(modeluser.User.id == int(user_id)).first()
 
    if user is None:
         raise credentials_exception

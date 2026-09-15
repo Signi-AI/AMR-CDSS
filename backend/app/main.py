@@ -6,7 +6,7 @@ from app.auth import loginroute
 
 
 from app.api.v1.routers import patient,clinical_visit,pathogen,antimicrobial,result_analyis,cell_cont,clinical_rule
-from backend.app.api.v1.routers import user
+from app.api.v1.routers import user
 
 app=FastAPI(title="Clinical Decision Support System Backend")
 

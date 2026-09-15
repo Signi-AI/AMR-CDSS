@@ -7,7 +7,7 @@ class UserCreate(BaseModel):
     full_name: str
     email: EmailStr
     password: str
-    role: str
+  
 
     @field_validator("password")
     @classmethod
@@ -21,7 +21,7 @@ class UserUpdate(BaseModel):
     full_name: Optional[str]=None
     email: Optional[EmailStr]=None
     password: Optional[str]=None
-    role: Optional[str]=None
+  
 
     @field_validator("password")
     @classmethod

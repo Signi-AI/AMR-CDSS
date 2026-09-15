@@ -19,7 +19,7 @@ def login(request: Annotated[OAuth2PasswordRequestForm, Depends()],db:Session= D
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    if not Hash.verify_password(request.password, user.password_hash):
+    if not Hash.verify_password(request.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, 
             detail='Incorrect password or username',
