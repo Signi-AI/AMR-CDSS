@@ -2,6 +2,7 @@ from pydantic import BaseModel, field_validator
 from datetime import date,datetime
 from typing import Optional
 from app.models.patient import Gender
+from typing import List
 
 class PatientCreate(BaseModel):
     patient_code : str
@@ -44,3 +45,13 @@ class PatientResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class Patientpagination(BaseModel):
+    items: List[PatientResponse]
+    total: int
+    page: int
+    limit: int
+    pages: int
+
+
+

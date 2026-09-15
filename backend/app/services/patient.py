@@ -4,9 +4,11 @@ from app.models import media
 from sqlalchemy.exc import IntegrityError
 from app.schemas.patient import PatientCreate,PatientUpdate
 from datetime import date
+from sqlalchemy import or_,asc,desc
 from app.models.user import UserRole
 from fastapi import HTTPException,status
 from app.services.storage.storage import delete_upload_file
+from .paginationService import PaginationParams
 
 
 
@@ -46,40 +48,60 @@ class Patient_Services():
         
         return patient
 
-    @staticmethod
-    def get_patient(db: Session, patient_id: int):
-        patient=db.query(Patient).filter(Patient.id == patient_id).first()
-        return patient
-    @staticmethod
-    def get_patient_by_code(db: Session, code: str):
-        patient=db.query(Patient).filter(Patient.patient_code == code).first()
-        return patient
+
 
     @staticmethod
-    def list_patients(db: Session, skip: int = 0, limit: int = 50):
-        patient= db.query(Patient).offset(skip).limit(limit).all()
-        return patient
+    def list_patient_with_results(db: Session, params: PaginationParams):
+
+        query = db.query(Patient)
+
+        # 1. Apply filtering if search parameter is provided
+        if params.search:
+            search_terms = f"%{params.search}%"  # Added trailing % for substring matching
+            query = query.filter(
+                or_(
+                    Patient.patient_code.ilike(search_terms),
+                    Patient.full_name.ilike(search_terms)
+                )
+            )
+
+        # 2. Get total count AFTER applying filters, but BEFORE pagination
+        total = query.count()
+
+        # 3. Apply sorting
+        sort_column = getattr(Patient, params.sort_by, Patient.created_at)
+        if params.order == "asc":
+            query = query.order_by(sort_column.asc())
+        else:
+            query = query.order_by(sort_column.desc())
+
+        # 4. Apply pagination and fetch results
+        result = query.offset(params.offset).limit(params.limit).all()
+
+        return result, total
 
     @staticmethod
-    def update_patient(db: Session, patient_id: int, data: PatientUpdate ,current_user):
-        if current_user.role not in (UserRole.ADMIN,UserRole.DOCTOR):
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="you not have action to perform this")
+    def update_patient(db: Session, patient_id: int, data: PatientUpdate):
+        
                 
         patient =db.query(Patient).filter(Patient.id==patient_id).first()
         if not patient:
          raise HTTPException(status.HTTP_404_NOT_FOUND,detail=f"patient with id {patient_id} not found")
-        if data.full_name:
-         patient.full_name=data.full_name
-        if data.gender:
-         patient.gender==data.gender
-        if data.date_of_birth:
-            patient.date_of_birth=data.date_of_birth
-            patient.age=calc_age(data.date_of_birth)        
-        if data.address:
-            patient.address=data.address    
+      
+        patient.full_name=data.full_name
+        patient.patient_code = data.patient_code
+        patient.gender==data.gender
+        patient.date_of_birth=data.date_of_birth
+        patient.age=calc_age(data.date_of_birth)        
     
-        db.commit()
-        db.refresh(patient)
+        try:
+
+            db.commit()
+            db.refresh(patient)
+        except InterruptedError:
+            raise HTTPException(
+                status_code=400,detail="conflict data already exist"
+            )
         return patient
     
     @staticmethod
