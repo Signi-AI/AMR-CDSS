@@ -5,7 +5,10 @@ from app.schemas.patient import PatientCreate, PatientResponse
 from app.services.patient import Patient_Services
 from app.auth.auth import get_current_user
 from app.models.user import User
+from app.auth.RoleAuth import RoleChecker
 
+admin = RoleChecker(["admin"])
+doctor = RoleChecker(["doctor","admin"])
 
 
 router = APIRouter(prefix="/patients", tags=["Patients"])
@@ -14,7 +17,7 @@ router = APIRouter(prefix="/patients", tags=["Patients"])
 def create_patient(
     data: PatientCreate,
     db: Session = Depends(get_db),
-    current_user:User=Depends(get_current_user)
+    current_user:User=Depends(doctor)
 ):
     return Patient_Services.create_patient(db, data,current_user)
 

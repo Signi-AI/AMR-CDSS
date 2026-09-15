@@ -4,11 +4,10 @@ from typing import Optional
 from app.models.patient import Gender
 
 class PatientCreate(BaseModel):
-    full_name: str
+    patient_code : str
+    full_name: Optional[str] = None
     date_of_birth: date
     gender: Gender
-    phone_number: Optional[str] = None
-    address: Optional[str] = None
 
     @field_validator("date_of_birth")
     @classmethod
@@ -19,11 +18,11 @@ class PatientCreate(BaseModel):
     
     
 class PatientUpdate(BaseModel):
-    full_name:Optional[str]=None
-    date_of_birth: Optional[date]=None
-    gender: Optional[Gender]=None
-    phone_number: Optional[str] = None
-    address: Optional[str] = None
+    patient_code : Optional [str] = None
+    full_name: Optional[str] = None
+    date_of_birth:  Optional [date]
+    gender:  Optional [Gender]
+
 
     @field_validator("date_of_birth")
     @classmethod
@@ -35,15 +34,13 @@ class PatientUpdate(BaseModel):
 class PatientResponse(BaseModel):
     id: int
     patient_code: str
-    full_name: str
+    full_name: Optional [str]
     date_of_birth: date
     age:int
     created_by:int
     gender: Gender
-    phone_number: Optional[str]
-    address: Optional[str]
     created_at:datetime
-    updated_at:datetime
+
 
     class Config:
         from_attributes = True

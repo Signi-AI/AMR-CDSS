@@ -1,14 +1,14 @@
 from sqlalchemy.orm import Session
 from app.models.patient import Patient
 from app.models import media
+from sqlalchemy.exc import IntegrityError
 from app.schemas.patient import PatientCreate,PatientUpdate
 from datetime import date
 from app.models.user import UserRole
 from fastapi import HTTPException,status
 from app.services.storage.storage import delete_upload_file
 
-def auto_patient_code(patient_id: int):
-    return f"HOSP-PAT-{patient_id:06d}"
+
 
 def calc_age(dob:date):
     today=date.today()
@@ -18,8 +18,7 @@ def calc_age(dob:date):
 class Patient_Services():
     @staticmethod
     def create_patient(db: Session, data: PatientCreate,current_user):
-        if current_user.role not in (UserRole.ADMIN,UserRole.DOCTOR):
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="you not have action to perform this")
+
         patient=(db.query(Patient).filter(Patient.full_name==data.full_name,
                                         Patient.date_of_birth==data.date_of_birth,
                                         Patient.gender==data.gender).first())
@@ -27,20 +26,24 @@ class Patient_Services():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Patient alredy registered")
         patient = Patient(
             full_name=data.full_name,
-            address=data.address,
+            patient_code = data.patient_code,
             date_of_birth=data.date_of_birth,
             age=calc_age(data.date_of_birth),
             gender=data.gender,
             created_by=current_user.id,
-            phone_number=data.phone_number
+          
         )
+        try:
+
+            db.add(patient)
+            db.commit()
+            db.refresh(patient)
+
+        except IntegrityError:
+            raise HTTPException(
+                status_code=400,detail="conflicts: data already exist"
+            )
         
-        db.add(patient)
-        db.flush() 
-        patient.patient_code = auto_patient_code(patient.id)
-    
-        db.commit()
-        db.refresh(patient)
         return patient
 
     @staticmethod
