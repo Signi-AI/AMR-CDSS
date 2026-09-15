@@ -15,3 +15,4 @@ ultralytics
 timm
 pwdlib[argon2]
 pydantic[email]
+pyjwt

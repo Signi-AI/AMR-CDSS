@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.clinical_rule import ClinicalRuleCreate, ClinicalRuleUpdate, ClinicalRuleOut
 from app.services import clinical_rule_service
-from app.core.dependencies import  get_current_user
+from app.auth.auth import  get_current_user
 from app.models.user import UserRole
 
 router = APIRouter(prefix="/clinical-rules", tags=["Clinical Rules"])

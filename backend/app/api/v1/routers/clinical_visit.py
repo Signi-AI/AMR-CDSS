@@ -9,7 +9,7 @@ from app.schemas.clinical_visit import (
 )
 from app.models.clinical_visit import VisitStatus
 from app.services import clinical_visit
-from app.core.dependencies import get_current_user
+from app.auth.auth import get_current_user
 from app.models.user import UserRole,User
 
 router = APIRouter(prefix="/clinical-visits", tags=["Clinical Visits"])
