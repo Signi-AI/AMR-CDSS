@@ -1,17 +1,10 @@
-import { getRecommendation } from "../utils/resultMessages";
 
 function ResultModal({ open, results, analysisData, onClose }) {
     if (!open) {
         return null;
     }
 
-    const recommendation = getRecommendation(
-        results.treatmentEffectiveness,
-        results.adverseReactionRisk,
-        analysisData.medicine
-    );
-
-    const isGood = recommendation.result === "Low risk";
+    const isGood = results.adverseReactionRisk === "Low";
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
@@ -47,12 +40,12 @@ function ResultModal({ open, results, analysisData, onClose }) {
                                     : "bg-red-100 text-red-600"
                             }`}
                         >
-                            {recommendation.result}
+                            {results.adverseReactionRisk} Risk
                         </span>
                     </div>
 
                     <p className="mt-3 text-sm leading-relaxed text-slate-700">
-                        {recommendation.message}
+                        {results.message}
                     </p>
                 </div>
 

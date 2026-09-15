@@ -3,10 +3,18 @@ from fastapi.staticfiles import StaticFiles
 import os
 
 
-from app.api.v1.routers import auth,patient,clinical_visit,pathogen,antimicrobial,result_analyis,cell_cont,clinical_rule
+from app.api.v1.routers import auth,patient,clinical_visit,pathogen,antimicrobial,result_analyis,cell_cont,clinical_rule,workflow
+from fastapi.middleware.cors import CORSMiddleware
 
-app=FastAPI(title="Clinical Decision Support System Backend")
+app = FastAPI(title="Clinical Decision Support System Backend")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(auth.router)
 app.include_router(patient.router)
@@ -16,6 +24,7 @@ app.include_router(pathogen.router)
 app.include_router(antimicrobial.router)
 app.include_router(cell_cont.router)
 app.include_router(clinical_rule.router)
+app.include_router(workflow.router)
 
 
 os.makedirs("uploads", exist_ok=True)

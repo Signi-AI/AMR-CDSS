@@ -22,7 +22,7 @@ class Pathogen(Base):
     family = Column(Enum(PathogenFamily), nullable=False)
     description = Column(Text, nullable=True)
     common_resistance_profile = Column(Text, nullable=True)
-    is_active = Column(Boolean,default=datetime.now)
+    is_active = Column(Boolean,default=True)
     created_at = Column(DateTime,default=datetime.now,onupdate=datetime.now)
     
     analysis = relationship("AnalysisResult",back_populates="pathogen")

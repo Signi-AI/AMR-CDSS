@@ -19,6 +19,7 @@ function NewAnalysis() {
     const [submitError, setSubmitError] = useState("");
     const [results, setResults] = useState(null);
     const [showResultModal, setShowResultModal] = useState(false);
+    const [medicineName, setMedicineName] = useState("");
 
     const validateForm = () => {
         const newErrors = {};
@@ -57,45 +58,31 @@ function NewAnalysis() {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        // Prevent double submission
-        if (isAnalyzing) {
-            return;
-        }
+        if (isAnalyzing) return;
 
         setSubmitError("");
 
         const isValid = validateForm();
-
-        if (!isValid) {
-            return;
-        }
+        if (!isValid) return;
 
         setIsAnalyzing(true);
 
         try {
-            // Temporary mock request.
-            // This will later be replaced with the FastAPI request.
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            const backendResult = await saveAnalysis({
+                patientId: patientId.trim(),
+                age: Number(age),
+                sex,
+                disease: disease.trim(),
+                medicine_id: medicine,
+                medicine_name: medicineName,
+                image,
+            });
 
-            // Simulate results from two models (to be replaced by the ML model responses).
-            // Model 1: treatment effectiveness (resistance)
-            const simulatedTreatment =
-                Math.random() < 0.5 ? "Susceptible" : "Resistant";
-
-            // Model 2: adverse reaction risk
-            const simulatedRisk = Math.random() < 0.5 ? "Low" : "High";
-
-            const simulatedResults = {
-                treatmentEffectiveness: simulatedTreatment,
-                adverseReactionRisk: simulatedRisk,
-            };
-
-            setResults(simulatedResults);
+            setResults(backendResult.recommendation);
             setShowResultModal(true);
 
         } catch (error) {
             console.error("Analysis failed:", error);
-
             setSubmitError(
                 "Something went wrong while analyzing the sample. Please try again."
             );
@@ -105,27 +92,12 @@ function NewAnalysis() {
     };
 
     const handleCloseModal = () => {
-        if (!results) {
-            return;
-        }
-
-        // Save the analysis to history only when the doctor closes the modal
-        saveAnalysis({
-            patientId: patientId.trim(),
-            age: Number(age),
-            sex,
-            disease: disease.trim(),
-            medicine,
-            imageName: image.name,
-            results,
-        });
-
         setShowResultModal(false);
         setResults(null);
 
-        // Reset the form for the next analysis
         setImage(null);
         setMedicine("");
+        setMedicineName("");
         setPatientId("");
         setAge("");
         setSex("");
@@ -419,6 +391,7 @@ function NewAnalysis() {
                                     }));
                                 }
                             }}
+                            onMedicineNameChange={setMedicineName}
                             error={errors.medicine}
                         />
                     </div>

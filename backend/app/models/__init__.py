@@ -8,11 +8,10 @@ from app.models.clinical_visit import ClinicalVisit
 from app.models.antinicrobial import Antimicrobial
 from app.models.pathogen import Pathogen
 from app.models.analysis_result import AnalysisResult
+from app.models.ckinical_rule import ClinicalRule
+from app.models.cecl_count import CellCount
 
-
-
-
-__all__=["Base","User","Patient","Media","ClinicalVisit","Pathogen","Antimicrobial","AnalysisResult"]
+__all__=["Base","User","Patient","Media","ClinicalVisit","Pathogen","Antimicrobial","AnalysisResult", "ClinicalRule", "CellCount"]
 
 
 

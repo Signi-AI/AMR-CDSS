@@ -1,11 +1,37 @@
-const MEDICINES = [
-    { value: "amoxicillin", label: "Amoxicillin" },
-    { value: "ciprofloxacin", label: "Ciprofloxacin" },
-    { value: "doxycycline", label: "Doxycycline" },
-    { value: "azithromycin", label: "Azithromycin" },
-];
+import { useState, useEffect } from "react";
+import { getMedicines } from "../service/api";
 
-function MedicineSelect({ value, onChange, error }) {
+function MedicineSelect({ value, onChange, error, onMedicineNameChange }) {
+    const [medicines, setMedicines] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchMedicines() {
+            try {
+                const data = await getMedicines();
+                setMedicines(data);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchMedicines();
+    }, []);
+
+    const handleChange = (event) => {
+        const val = event.target.value;
+        onChange(val);
+        if (onMedicineNameChange) {
+            const selected = medicines.find((m) => String(m.id) === val);
+            if (selected) {
+                onMedicineNameChange(selected.name);
+            } else {
+                onMedicineNameChange("");
+            }
+        }
+    };
+
     return (
         <div>
             <label
@@ -18,17 +44,18 @@ function MedicineSelect({ value, onChange, error }) {
             <select
                 id="medicine"
                 value={value}
-                onChange={(event) => onChange(event.target.value)}
+                onChange={handleChange}
+                disabled={loading}
                 className={`mt-2 w-full rounded-lg border bg-white px-4 py-3 text-sm outline-none transition focus:ring-2 ${
                     error
                         ? "border-red-400 focus:border-red-500 focus:ring-red-100"
                         : "border-slate-300 focus:border-teal-500 focus:ring-teal-100"
                 }`}
             >
-                <option value="">Select medicine</option>
-                {MEDICINES.map((medicine) => (
-                    <option key={medicine.value} value={medicine.value}>
-                        {medicine.label}
+                <option value="">{loading ? "Loading..." : "Select medicine"}</option>
+                {medicines.map((medicine) => (
+                    <option key={medicine.id} value={medicine.id}>
+                        {medicine.name}
                     </option>
                 ))}
             </select>
