@@ -1,36 +1,47 @@
 from sqlalchemy.orm import Session
-from app.models.user import User
+from app.models.user import User,Role,UserRole
 from app.schemas.user import UserCreate
-from app.core.security import hash_password, verify_password, create_access_token
+from app.auth.security import Hash 
 from fastapi import HTTPException,status
+from sqlalchemy.exc import IntegrityError
 
 class User_Serviices():
     @staticmethod
     def create_user(db: Session, data: UserCreate):
-        existing = db.query(User).filter(User.email == data.email).first()
-        if existing:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail= "Email already registered")
+        
         user = User(
             full_name=data.full_name,
             email=data.email,
-            password=hash_password(data.password),
-            role=data.role,
+            password=Hash.hash(data.password),
+         
         )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+        try:
+
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        except IntegrityError:
+            db.rollback()
+            raise HTTPException(
+                status_code=400, detail="Conflicts: data alreafy exist"
+            )
+
+
+        role_name = "doctor"
+
+        role = db.query(Role).filter(Role.name == role_name).first()
+
+        if role:
+            user_role = UserRole(
+                user_id = user.id,
+                role_id = role.id
+            )
+            db.add(user_role)
+            db.commit()
+
+
+
+
         return user
     
-    @staticmethod
-    def login(db: Session, email: str, password: str):
-        user = db.query(User).filter(User.email == email).first()
-        if not user:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail=" wrong email")
-        if not verify_password(password,user.password):
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail=" wrong password")
-        token =create_access_token({"sub":user.email})   
-    
-        return {
-            "access_token":token,
-            "token_type":"Bearer"
-        }
+   

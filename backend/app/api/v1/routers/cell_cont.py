@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.cell_count import CellCountCreate, CellCountOut
 from app.services import cell_count_service
-from app.core.dependencies import get_current_user
+from app.auth.auth import get_current_user
 from app.models.user import UserRole
 
 router = APIRouter(prefix="/cell-counts", tags=["Cell Counts"])

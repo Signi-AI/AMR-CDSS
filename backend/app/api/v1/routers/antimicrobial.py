@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.antimicrobial import AntimicrobialCreate, AntimicrobialUpdate, AntimicrobialOut
 from app.services import antimicrobial_service
-from app.core.dependencies import get_current_user
+from app.auth.auth import get_current_user
 from app.models.user import User
 
 router = APIRouter(prefix="/antimicrobials", tags=["Antimicrobials"])

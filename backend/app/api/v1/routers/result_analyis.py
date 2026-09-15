@@ -4,7 +4,7 @@ from fastapi import APIRouter,File,UploadFile,Depends
 from app.services.storage.storage import save_upload_file,IMAGE_TYPES,UploadCatgory
 from sqlalchemy.orm import Session
 from app.models.user import User
-from app.core.dependencies import get_current_user
+from app.auth.auth import get_current_user
 from app.core.database import get_db
 from app.schemas.analysis_result import AnalysisResultCreate,AnalysisResultOut
 from app.services.analysis_result import Result_service
