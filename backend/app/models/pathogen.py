@@ -25,5 +25,5 @@ class Pathogen(Base):
     is_active = Column(Boolean,default=datetime.now)
     created_at = Column(DateTime,default=datetime.now,onupdate=datetime.now)
     
-    analysis = relationship("AnalysisResult",back_populates="pathogen")
+
     rules= relationship("ClinicalRule",back_populates="pathogen")

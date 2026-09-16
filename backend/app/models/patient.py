@@ -27,3 +27,5 @@ class Patient(Base):
 
     media = relationship("Media",back_populates="patient")
     user=relationship("User",back_populates="patient")
+    analysis = relationship("AnalysisResult", back_populates="patient")
+    
