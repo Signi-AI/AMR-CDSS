@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr, field_validator
 
 from datetime import datetime
-from typing import Optional
+from typing import Optional,List
 
 class UserCreate(BaseModel):
     full_name: str
@@ -31,3 +31,10 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class Userpagination(BaseModel):
+    items: List[UserResponse]
+    total: int
+    page: int
+    limit: int
+    pages: int

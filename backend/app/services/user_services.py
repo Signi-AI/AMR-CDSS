@@ -4,6 +4,8 @@ from app.schemas.user import UserCreate,UserUpdate
 from app.auth.security import Hash 
 from fastapi import HTTPException,status
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import or_,asc,desc
+from app.services.paginationService import PaginationParams
 
 class User_Serviices():
     @staticmethod
@@ -40,15 +42,42 @@ class User_Serviices():
             db.commit()
         return user
     
-    @staticmethod
-    def all_user(db:Session):
-        users=db.query(User).all()
-        return users
+    # @staticmethod
+    # def all_user(db:Session):
+    #     users=db.query(User).all()
+    #     return users
     
     @staticmethod
     def myinfo(db:Session,current_user):
         user=db.query(User).filter(User.id==current_user.id).first()
-        return user
+        return user 
+    
+    @staticmethod
+    def all_user(db: Session, params: PaginationParams):
+
+        user=db.query(User)
+        if params.search:
+            search_terms = f"%{params.search}%"  # Added trailing % for substring matching
+            user= user.filter(
+                or_(
+                    User.full_name.ilike(search_terms),
+                    User.email.ilike(search_terms)
+                )
+            )
+        total = user.count()
+
+        
+        sort_column = getattr(User, params.sort_by, User.created_at)
+        if params.order == "asc":
+            user = user.order_by(sort_column.asc())
+        else:
+            user = user.order_by(sort_column.desc())
+
+       
+        result = user.offset(params.offset).limit(params.limit).all()
+
+        return result, total
+    
     
     @staticmethod
     def show_byId(user_id:int,db:Session):

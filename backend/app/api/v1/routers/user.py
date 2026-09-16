@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends,Query
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.user import User
-from typing import List
+from typing import List,Optional
+import math
 from app.auth.auth import get_current_user
-from app.schemas.user import UserCreate, UserResponse,UserUpdate
+from app.schemas.user import UserCreate, UserResponse,UserUpdate,Userpagination
 from app.services.user_services import User_Serviices
+from app.services.paginationService import PaginationParams,PaginatedResponse
 from app.auth.RoleAuth import RoleChecker
 
 admin_required=RoleChecker(["admin"])
@@ -17,10 +19,30 @@ router = APIRouter(prefix="/user", tags=["User"])
 def register(data:UserCreate, db: Session = Depends(get_db)):
     return User_Serviices.create_user(db, data)
 
-@router.get("/", response_model=List[UserResponse])
-def all_user(db:Session=Depends(get_db),
-            current_user:User=Depends(admin_required)):
-    return User_Serviices.all_user(db)
+@router.get("/", response_model=Userpagination)
+def all_user(
+    page: int = Query(default=1, ge=1),
+    limit : int = Query(default=20, ge=1, le=100),
+    search : Optional[str] = Query(default=None),
+    sort_by : str = Query(default="created_at"),
+    order: str = Query(default="desc"),
+    current_user:User=Depends(admin_required),
+     db: Session = Depends(get_db)
+     ):
+
+    params = PaginationParams(
+        page=page,limit=limit,search=search,sort_by=sort_by,order=order
+    )
+    users, total =User_Serviices.all_user(db, params)
+
+    pages = math.ceil(total / limit) if total > 0 else 0
+    return {
+            "items": users,
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "pages": pages
+        }
 
 @router.get("/me", response_model=UserResponse)
 def myinfo(db:Session=Depends(get_db),
