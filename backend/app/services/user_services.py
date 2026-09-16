@@ -13,7 +13,7 @@ class User_Serviices():
             full_name=data.full_name,
             email=data.email,
             password=Hash.hash(data.password),
-         
+
         )
         try:
 
@@ -58,29 +58,36 @@ class User_Serviices():
         return user
     
     @staticmethod
-    def update(user_id:int,db:Session,data:UserUpdate):
+    def update(user_id:int,db:Session,data:UserUpdate,current_user):
         user=db.query(User).filter(User.id==user_id).first()
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"user with ID {user_id} not found")
-        if data.full_name:
-            user.full_name=data.full_name
-        if data.email:    
-            user.email=data.email
+        user_roles = {ur.roles.name for ur in current_user.role if ur.roles}
+   
+        if "admin" not in user_roles and user.id != current_user.id:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=f"you not have access to perforn this")
+        
+        user.full_name=data.full_name
+        user.email=data.email
         
         db.commit()
         db.refresh(user)
         return user
     
     @staticmethod
-    def delete(user_id:int,db:Session):
+    def delete(user_id:int,db:Session,current_user):
         user=db.query(User).filter(User.id==user_id).first()
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"user with ID {user_id} not found")
+        user_roles = {ur.roles.name for ur in current_user.role if ur.roles}
+   
+        if "admin" not in user_roles and user.id != current_user.id:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=f"you not have access to perforn this")
         db.delete(user)
         db.commit()
         return {"message":"user deleted successfuly"}
             
     
-        
+         
     
    

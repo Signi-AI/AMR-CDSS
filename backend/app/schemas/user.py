@@ -20,17 +20,7 @@ class UserCreate(BaseModel):
 class UserUpdate(BaseModel):
     full_name: Optional[str]=None
     email: Optional[EmailStr]=None
-    password: Optional[str]=None
-  
-
-    @field_validator("password")
-    @classmethod
-    def password_min_length(cls, value: str) -> str:
-        if len(value) < 8:
-            raise ValueError("Password must be at least 8 characters")
-        return value
-    
-    
+   
 class UserResponse(BaseModel):
     id: int
     full_name: str
