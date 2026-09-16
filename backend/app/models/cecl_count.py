@@ -8,8 +8,7 @@ class CellCount(Base):
     __tablename__ = "cell_counts"
 
     id = Column(Integer, primary_key=True, index=True)
-    analysis_result_id = Column(Integer, ForeignKey("analysis_results.id"), nullable=False)
-
+   
     rbc_count = Column(Float, nullable=True)
     wbc_count = Column(Float, nullable=True)
     platelet_count = Column(Float, nullable=True)
@@ -18,4 +17,4 @@ class CellCount(Base):
 
     created_at = Column(DateTime,default=datetime.max)
 
-    analysis_result = relationship("AnalysisResult", back_populates="cell_counts")
+   

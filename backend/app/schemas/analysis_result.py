@@ -1,11 +1,11 @@
 from pydantic import BaseModel, field_validator
 from typing import Optional
 from datetime import datetime
+from typing import List
 
 
 class AnalysisResultCreate(BaseModel):
-    visit_id: int
-    pathogen_id: Optional[int] = None
+    patient_id: int
     image_path: str
     confidence_score: Optional[float] = None
     detection_summary: Optional[str] = None
@@ -19,14 +19,20 @@ class AnalysisResultCreate(BaseModel):
 
 
 class AnalysisResultOut(BaseModel):
-    id: int
-    visit_id: int
-    pathogen_id: Optional[int]
+    id: Optional[int] = None
+    patient_id: int
     image_path: str
-    confidence_score: Optional[float]
-    detection_summary: Optional[str]
+    confidence_score: Optional[float] = None
+    detection_summary: Optional[str] = None
     analyzed_at: datetime
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+class AnalysisPag(BaseModel):
+    items: List[AnalysisResultOut]
+    total: int
+    page: int
+    limit: int
+    pages: int
