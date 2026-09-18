@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.schemas.analysis_result import AnalysisResultCreate
 from app.models.analysis_result import AnalysisResult
-from app.models.clinical_visit import ClinicalVisit, VisitStatus
 from app.models.patient import Patient
 from .paginationService import PaginationParams
 from sqlalchemy import or_
